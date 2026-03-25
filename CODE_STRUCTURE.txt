@@ -1,0 +1,170 @@
+JarvisQL Project Notes
+======================
+
+Author: Jitender Singh
+Roll No: 25CS60D05
+
+This file gives a quick, practical overview of the codebase.
+
+------------------------------------------------------------
+1) Folder structure
+------------------------------------------------------------
+
+- CMakeLists.txt
+  Build configuration.
+
+- README.md
+  How to build, run, and test.
+
+- DESIGN.md
+  Design decisions and architecture summary.
+
+- TEST_COMMANDS.txt
+  Sequential SQL commands for manual testing.
+
+- include/flexql.h
+  Public C client API.
+
+- src/
+  Main implementation.
+
+- tests/
+  Unit tests and SQL coverage tests.
+
+- scripts/
+  Helper script to run build/tests/benchmark proof artifacts.
+
+- jarvisql_data/
+  Runtime persistence directory (created automatically).
+
+- proof/
+  Generated logs and screenshots from test/benchmark runs.
+
+------------------------------------------------------------
+2) Core source files
+------------------------------------------------------------
+
+- src/engine.hpp, src/engine.cpp
+  Main in-memory engine with:
+  - database/table storage
+  - query execution (CREATE/USE/INSERT/SELECT/JOIN)
+  - indexes
+  - cache
+  - persistence integration
+
+- src/sql_parser.hpp, src/sql_parser.cpp
+  SQL parsing into structured query objects.
+  Important: SQL must end with ';'.
+
+- src/persistence.hpp, src/persistence.cpp
+  Disk persistence layer.
+  - Schema: .schema files
+  - Data: .csv files
+  - Loads state on startup and saves on writes
+
+- src/protocol.hpp, src/protocol.cpp
+  Socket protocol helpers for line-based communication.
+
+- src/server.cpp
+  Multithreaded TCP server.
+
+- src/repl.cpp
+  Interactive SQL client.
+
+- src/client_api.cpp
+  C API implementation (`flexql_*`).
+
+- src/bench.cpp
+  Benchmark runner for insert/query timings.
+
+- src/common.hpp
+  Utility helpers (string ops, time, predicate checks).
+
+------------------------------------------------------------
+3) Query support (current)
+------------------------------------------------------------
+
+- CREATE DATABASE <name>;
+- USE <database>;
+- CREATE TABLE ...;
+- INSERT INTO ... VALUES (...);
+- INSERT ... EXPIRES IN <seconds>;
+- INSERT ... EXPIRES AT '<epoch_seconds>';
+- SELECT ... FROM ... [WHERE ...];
+- SELECT ... INNER JOIN ... ON ... [WHERE ...];
+
+Notes:
+- WHERE supports one predicate only.
+- Logical AND/OR in WHERE are intentionally not supported.
+
+------------------------------------------------------------
+4) Data model and indexing
+------------------------------------------------------------
+
+Each table stores:
+- schema
+- rows
+- primary-key index (hash map)
+- per-column equality hash indexes
+
+Behavior:
+- `pk = value` uses primary index directly.
+- `col = value` can use equality index.
+- range predicates do full scan.
+
+------------------------------------------------------------
+5) Caching and concurrency
+------------------------------------------------------------
+
+- LRU query-result cache (capacity: 512 entries).
+- Cache is invalidated on writes.
+- Shared mutexes are used for DB/table read-heavy workloads.
+
+------------------------------------------------------------
+6) Persistence format
+------------------------------------------------------------
+
+Files are under:
+jarvisql_data/<database>/
+
+- <table>.schema
+  Primary-key column index + column metadata.
+
+- <table>.csv
+  One row per line with escaped values and expiry timestamp.
+
+------------------------------------------------------------
+7) Tests
+------------------------------------------------------------
+
+- tests/test_engine.cpp
+  Unit-style engine tests.
+
+- tests/pdf_sql_test_runner.cpp
+  SQL behavior coverage tests.
+
+- TEST_COMMANDS.txt
+  Manual end-to-end SQL sequence for REPL.
+
+------------------------------------------------------------
+8) Build and run (quick)
+------------------------------------------------------------
+
+Build (manual fallback):
+- g++ server, repl, bench, tests (see README for exact commands)
+
+Run:
+- ./build/jarvisql_server 9000
+- ./build/jarvisql_repl 127.0.0.1 9000
+
+Or:
+- ./start.sh
+
+------------------------------------------------------------
+9) Current status summary
+------------------------------------------------------------
+
+- Semicolon-terminated SQL flow is enforced.
+- Parser/tests/bench/scripts are aligned.
+- Persistence is integrated and working.
+- Build + tests + command sequence are runnable.

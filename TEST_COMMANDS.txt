@@ -1,0 +1,134 @@
+# JarvisQL Test Commands (Run Sequentially)
+# Notes:
+# 1) Run in the same order.
+# 2) Every SQL statement must end with ';'.
+# 3) Sections are grouped for easier manual checking.
+
+## 1) Database and table setup
+CREATE DATABASE testdb;
+CREATE DATABASE analytics;
+USE testdb;
+
+CREATE TABLE users (id INT PRIMARY KEY, name VARCHAR, score DECIMAL);
+CREATE TABLE products (product_id INT PRIMARY KEY, product_name VARCHAR, price DECIMAL);
+CREATE TABLE events (event_id INT PRIMARY KEY, event_type VARCHAR, timestamp INT);
+
+SELECT * FROM users;
+SELECT * FROM products;
+SELECT * FROM events;
+
+## 2) Insert operations
+INSERT INTO users VALUES (1, 'Alice', 95.5);
+INSERT INTO users VALUES (2, 'Bob', 87.2);
+INSERT INTO users VALUES (3, 'Charlie', 92.1);
+INSERT INTO users VALUES (4, 'Diana', 88.9);
+INSERT INTO users VALUES (5, 'Eve', 91.3);
+
+INSERT INTO products VALUES (1, 'Keyboard', 79.99);
+INSERT INTO products VALUES (2, 'Mouse', 29.99);
+INSERT INTO products VALUES (3, 'Laptop', 999.99);
+INSERT INTO products VALUES (4, 'Monitor', 299.99);
+INSERT INTO products VALUES (5, 'Headphones', 149.99);
+
+INSERT INTO events VALUES (1, 'login', 1000000);
+INSERT INTO events VALUES (2, 'logout', 1010000);
+INSERT INTO events VALUES (3, 'purchase', 1020000);
+INSERT INTO events VALUES (4, 'review', 1030000);
+INSERT INTO events VALUES (5, 'login', 1040000);
+
+## 3) Equality lookups
+SELECT * FROM users WHERE id = 1;
+SELECT * FROM users WHERE id = 3;
+SELECT * FROM users WHERE name = 'Bob';
+SELECT * FROM products WHERE product_id = 1;
+SELECT * FROM products WHERE product_name = 'Keyboard';
+SELECT * FROM events WHERE event_type = 'login';
+
+## 4) Range/comparison checks
+SELECT * FROM users WHERE score > 90.0;
+SELECT * FROM users WHERE score < 90.0;
+SELECT * FROM users WHERE score >= 92.1;
+SELECT * FROM users WHERE score <= 88.9;
+SELECT * FROM products WHERE price > 150.0;
+SELECT * FROM products WHERE price < 100.0;
+SELECT * FROM events WHERE timestamp > 1015000;
+SELECT * FROM events WHERE timestamp < 1015000;
+
+## 5) Column projection
+SELECT id, name FROM users;
+SELECT product_id, product_name FROM products;
+SELECT event_id, event_type FROM events;
+SELECT name, score FROM users WHERE score > 90.0;
+
+## 6) Join operations
+SELECT * FROM users INNER JOIN products ON users.id = products.product_id;
+SELECT users.id, users.name, products.product_name FROM users INNER JOIN products ON users.id = products.product_id;
+SELECT users.name, events.event_type FROM users INNER JOIN events ON users.id = events.event_id;
+SELECT users.name, events.event_type FROM users INNER JOIN events ON users.id = events.event_id WHERE events.timestamp > 1010000;
+
+## 7) Expiration checks
+CREATE TABLE cache_data (cache_id INT PRIMARY KEY, data VARCHAR, timestamp INT);
+INSERT INTO cache_data VALUES (1, 'data1', 100) EXPIRES AT '9999999999';
+INSERT INTO cache_data VALUES (2, 'data2', 200) EXPIRES AT '9999999999';
+INSERT INTO cache_data VALUES (3, 'data3', 300) EXPIRES AT '0';
+INSERT INTO cache_data VALUES (4, 'data4', 400) EXPIRES AT '1';
+SELECT * FROM cache_data;
+
+## 8) Large-table sanity run
+CREATE TABLE large_table (id INT PRIMARY KEY, value VARCHAR, amount DECIMAL);
+INSERT INTO large_table VALUES (1, 'value1', 10.5);
+INSERT INTO large_table VALUES (2, 'value2', 20.5);
+INSERT INTO large_table VALUES (3, 'value3', 30.5);
+INSERT INTO large_table VALUES (4, 'value4', 40.5);
+INSERT INTO large_table VALUES (5, 'value5', 50.5);
+INSERT INTO large_table VALUES (6, 'value6', 60.5);
+INSERT INTO large_table VALUES (7, 'value7', 70.5);
+INSERT INTO large_table VALUES (8, 'value8', 80.5);
+INSERT INTO large_table VALUES (9, 'value9', 90.5);
+INSERT INTO large_table VALUES (10, 'value10', 100.5);
+
+SELECT * FROM large_table WHERE id = 5;
+SELECT * FROM large_table WHERE amount > 50.0;
+SELECT value FROM large_table WHERE id > 3;
+
+## 9) Multi-database checks
+USE analytics;
+CREATE TABLE metrics (metric_id INT PRIMARY KEY, metric_name VARCHAR, value DECIMAL);
+CREATE TABLE logs (log_id INT PRIMARY KEY, level VARCHAR, message VARCHAR);
+
+INSERT INTO metrics VALUES (1, 'cpu_usage', 45.2);
+INSERT INTO metrics VALUES (2, 'memory_usage', 62.1);
+INSERT INTO metrics VALUES (3, 'disk_usage', 78.5);
+INSERT INTO metrics VALUES (4, 'network_io', 234.1);
+
+INSERT INTO logs VALUES (101, 'INFO', 'Application started');
+INSERT INTO logs VALUES (102, 'WARN', 'Memory usage high');
+INSERT INTO logs VALUES (103, 'ERROR', 'Connection timeout');
+INSERT INTO logs VALUES (104, 'INFO', 'Cache cleared');
+
+SELECT * FROM metrics;
+SELECT * FROM logs WHERE level = 'ERROR';
+SELECT metric_name, value FROM metrics WHERE value > 50.0;
+
+## 10) Persistence verification (run after restart)
+USE testdb;
+SELECT * FROM users;
+SELECT * FROM products;
+SELECT * FROM cache_data;
+
+USE analytics;
+SELECT * FROM metrics;
+SELECT * FROM logs;
+
+## 11) Negative parser checks (expected fail)
+# SELECT id FROM users WHERE id = 1 AND score > 80;
+# SELECT id FROM users WHERE id = 1 OR score > 80;
+
+## 12) Final state checks
+USE testdb;
+SELECT * FROM users;
+SELECT * FROM products;
+SELECT * FROM events;
+SELECT * FROM cache_data;
+
+# End of sequence
