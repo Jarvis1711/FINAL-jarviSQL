@@ -1,0 +1,9 @@
+build/
+jarvisql_data/
+proof/*.log
+proof/*.png
+*.db
+*.o
+*.out
+*.tmp
+/tmp/

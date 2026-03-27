@@ -1,4 +1,5 @@
 # JarvisQL Design Document
+Github Repo- https://github.com/Jarvis1711/JarviSQL
 
 Author: Jitender Singh  
 Roll No: 25CS60D05
@@ -94,4 +95,4 @@ Main choices that improve latency:
 - release build flags and low-overhead protocol framing
 
 ## 11. Build and run
-Build and run commands are documented in [README.md](README.md).
+Build and run commands are documented in README.md.

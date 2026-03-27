@@ -46,6 +46,9 @@ target_link_libraries(jarvisql_repl PRIVATE flexql_client)
 add_executable(jarvisql_bench src/bench.cpp)
 target_link_libraries(jarvisql_bench PRIVATE flexql_client)
 
+add_executable(benchmark_flexql tests/benchmark_flexql.cpp)
+target_link_libraries(benchmark_flexql PRIVATE flexql_client)
+
 enable_testing()
 add_executable(jarvisql_tests
   tests/test_engine.cpp
