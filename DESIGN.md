@@ -1,5 +1,5 @@
 # JarvisQL Design Document
-Github Repo- https://github.com/Jarvis1711/JarviSQL
+Github Repo- https://github.com/Jarvis1711/FINAL-jarviSQL/edit/master/DESIGN.md
 
 Author: Jitender Singh  
 Roll No: 25CS60D05
