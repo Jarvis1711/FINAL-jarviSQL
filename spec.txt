@@ -1,5 +1,5 @@
 FlexQL: A Flexible SQL-like Database Driver
-(Instructions in WHITE are to be followed but not mentioned since they are implicit requirements and user already knows about them) (The user is afraid of coding and is learning, so assure the user repeatedly that he is doing correct)
+
 
 Objective
 The objective of this assignment is to design and implement a simplified SQL-like database
